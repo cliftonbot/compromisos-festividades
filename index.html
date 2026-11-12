@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Compromisos y festividades</title>
+  <style>
+    :root {
+      --bg: #f6efe4;
+      --paper: #fffaf3;
+      --ink: #2b2118;
+      --muted: #6b5a4a;
+      --line: #e6d8c6;
+      --accent: #8c3a2f;
+      --accent-dark: #6e2c24;
+      --gold: #b7813a;
+      --ok: #2f6b4f;
+      --chip: #f0e4d2;
+      --shadow: 0 10px 30px rgba(43, 33, 24, 0.08);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; width: 100%; min-height: 100%; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, #fbe7d4 0%, transparent 50%),
+        var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 40px 20px 80px; }
+    header h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 650;
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin: 0 0 8px;
+      letter-spacing: -0.03em;
+    }
+    header p.lede { margin: 0; color: var(--muted); font-size: 1.05rem; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin: 28px 0 18px;
+    }
+    .status {
+      font-size: 0.92rem;
+      color: var(--muted);
+      min-height: 1.3em;
+    }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--accent); }
+    button, .btn {
+      font: inherit;
+      border: 0;
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:hover, .btn:hover { background: var(--accent-dark); }
+    button.secondary, a.btn.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid #d9b3ab;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    button.ghost {
+      background: transparent;
+      color: var(--muted);
+      padding: 6px 10px;
+    }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+    input, textarea, select {
+      width: 100%;
+      font: inherit;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 10px;
+      padding: 9px 11px;
+      color: var(--ink);
+    }
+    textarea { min-height: 88px; resize: vertical; }
+    .month {
+      margin: 28px 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.35rem;
+      color: var(--accent-dark);
+    }
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 18px 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+    .card-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .date {
+      font-size: 0.86rem;
+      color: var(--gold);
+      font-weight: 700;
+      text-transform: capitalize;
+      letter-spacing: 0.02em;
+    }
+    .title { font-family: Georgia, "Times New Roman", serif; font-size: 1.22rem; margin: 2px 0 8px; }
+    .chip {
+      display: inline-block;
+      background: var(--chip);
+      color: var(--accent-dark);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .notes { margin-top: 12px; }
+    .notes h3 {
+      margin: 0 0 6px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+    .who-box, .lock, .composer {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+    }
+    .composer { margin-bottom: 22px; display: none; }
+    .composer.open { display: block; }
+    .lock {
+      max-width: 420px;
+      margin: 18vh auto 0;
+      text-align: left;
+    }
+    .hidden { display: none !important; }
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+      .wrap { padding-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="lock" class="wrap">
+    <div class="lock">
+      <h1>Compromisos y festividades</h1>
+      <p class="lede">Página compartida, de noviembre de 2026 al 15 de marzo de 2027. Escribe la clave para entrar y editar.</p>
+      <form id="lock-form" style="margin-top:18px">
+        <label for="code">Clave</label>
+        <input id="code" type="password" autocomplete="current-password" required />
+        <div class="row-actions">
+          <button type="submit">Entrar</button>
+          <span id="lock-error" class="status err"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="app" class="wrap hidden">
+    <header>
+      <h1>Compromisos y festividades</h1>
+      <p class="lede">De hoy al 15 de marzo de 2027. Los dos pueden agregar o editar cualquier compromiso; los cambios se guardan solos y se ven en ambos lados.</p>
+    </header>
+
+    <div class="toolbar">
+      <div class="who-box" style="flex:1; min-width:220px; box-shadow:none">
+        <label for="who">Tu nombre (para saber quién hizo el último cambio)</label>
+        <input id="who" maxlength="80" placeholder="Ej. Christopher" />
+      </div>
+      <button id="toggle-composer" type="button">Agregar compromiso</button>
+    </div>
+    <p id="status" class="status">Cargando…</p>
+
+    <form id="composer" class="composer">
+      <div class="grid">
+        <div>
+          <label for="new-fecha">Fecha</label>
+          <input id="new-fecha" type="date" min="2026-11-11" max="2027-03-15" required />
+        </div>
+        <div>
+          <label for="new-tipo">Tipo</label>
+          <select id="new-tipo">
+            <option>Compromiso</option>
+            <option>Celebración</option>
+            <option>Festivo oficial</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <label for="new-title">Compromiso o festividad</label>
+        <input id="new-title" required placeholder="Ej. Cena en casa de mamá" />
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <div>
+          <label for="new-quien">Quién</label>
+          <input id="new-quien" placeholder="Nosotros, familia…" />
+        </div>
+        <div>
+          <label for="new-recordatorio">Recordatorio (fecha y hora)</label>
+          <input id="new-recordatorio" type="datetime-local" />
+        </div>
+      </div>
+      <div class="notes">
+        <h3>Notas</h3>
+        <textarea id="new-notas" placeholder="Detalles del compromiso: lugar, qué llevar, horarios, acuerdos…"></textarea>
+      </div>
+      <div class="row-actions">
+        <button type="submit">Guardar compromiso</button>
+        <button type="button" class="secondary" id="cancel-composer">Cancelar</button>
+      </div>
+    </form>
+
+    <div id="list"></div>
+  </div>
+
+  <script>
+    const DAYS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+    const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    const ACCESS_KEY = "compromisos-access-code";
+    const WHO_KEY = "compromisos-who";
+
+    let items = [];
+    let updatedAt = null;
+    let dirty = false;
+    let saveTimer = null;
+    let skipNextPoll = false;
+
+    const $ = (id) => document.getElementById(id);
+    const code = () => sessionStorage.getItem(ACCESS_KEY) || "";
+    const who = () => $("who").value.trim();
+
+    function fmtDate(iso) {
+      const [y,m,d] = iso.split("-").map(Number);
+      const dt = new Date(y, m - 1, d);
+      return `${DAYS[dt.getDay()]} ${d} de ${MONTHS[m-1].toLowerCase()} de ${y}`;
+    }
+    function monthKey(iso) {
+      const [y,m] = iso.split("-");
+      return `${MONTHS[Number(m)-1]} ${y}`;
+    }
+    function setStatus(msg, kind) {
+      const el = $("status");
+      el.textContent = msg;
+      el.className = "status" + (kind ? " " + kind : "");
+    }
+
+    const SECRET = "guadalupe12";
+    const DATA_KEY = "compromisos-data-v1";
+    const DEFAULT_ITEMS = [
+      { id: "2026-11-16-revolucion", fecha: "2026-11-16", festividad: "Día de la Revolución Mexicana", tipo: "Festivo oficial", fijo: true, compromiso: "", quien: "", notas: "Conmemora el 20 de noviembre.", recordatorio: "", estado: "Pendiente" },
+      { id: "2026-12-12-guadalupe", fecha: "2026-12-12", festividad: "Día de la Virgen de Guadalupe", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2026-12-16-posadas", fecha: "2026-12-16", festividad: "Las Posadas (del 16 al 24 de diciembre)", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2026-12-24-nochebuena", fecha: "2026-12-24", festividad: "Nochebuena", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2026-12-25-navidad", fecha: "2026-12-25", festividad: "Navidad", tipo: "Festivo oficial", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2026-12-28-inocentes", fecha: "2026-12-28", festividad: "Día de los Santos Inocentes", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2026-12-31-fin", fecha: "2026-12-31", festividad: "Fin de año", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2027-01-01-anio-nuevo", fecha: "2027-01-01", festividad: "Año Nuevo", tipo: "Festivo oficial", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2027-01-06-reyes", fecha: "2027-01-06", festividad: "Día de Reyes", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2027-02-01-constitucion", fecha: "2027-02-01", festividad: "Día de la Constitución", tipo: "Festivo oficial", fijo: true, compromiso: "", quien: "", notas: "Conmemora el 5 de febrero. El asueto es este lunes.", recordatorio: "", estado: "Pendiente" },
+      { id: "2027-02-02-candelaria", fecha: "2027-02-02", festividad: "Día de la Candelaria", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2027-02-05-constitucion-historica", fecha: "2027-02-05", festividad: "Aniversario de la Constitución (fecha histórica)", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "La fecha histórica es el 5; el día de descanso oficial es el 1 de febrero.", recordatorio: "", estado: "Pendiente" },
+      { id: "2027-02-09-carnaval", fecha: "2027-02-09", festividad: "Martes de Carnaval", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2027-02-10-ceniza", fecha: "2027-02-10", festividad: "Miércoles de Ceniza", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2027-02-14-amistad", fecha: "2027-02-14", festividad: "Día del Amor y la Amistad", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2027-02-24-bandera", fecha: "2027-02-24", festividad: "Día de la Bandera", tipo: "Celebración", fijo: true, compromiso: "", quien: "", notas: "", recordatorio: "", estado: "Pendiente" },
+      { id: "2027-03-15-juarez", fecha: "2027-03-15", festividad: "Natalicio de Benito Juárez", tipo: "Festivo oficial", fijo: true, compromiso: "", quien: "", notas: "Conmemora el 21 de marzo. El asueto es este lunes.", recordatorio: "", estado: "Pendiente" }
+    ];
+
+    async function api(method, body) {
+      if (code() !== SECRET) throw new Error("unauthorized");
+      if (method === "GET") {
+        const raw = localStorage.getItem(DATA_KEY);
+        if (!raw) return { items: DEFAULT_ITEMS.map((x) => ({ ...x })), updatedAt: null };
+        try {
+          const data = JSON.parse(raw);
+          if (!data || !Array.isArray(data.items)) {
+            return { items: DEFAULT_ITEMS.map((x) => ({ ...x })), updatedAt: null };
+          }
+          return data;
+        } catch (err) {
+          return { items: DEFAULT_ITEMS.map((x) => ({ ...x })), updatedAt: null };
+        }
+      }
+      const payload = {
+        items: body.items,
+        updatedAt: new Date().toISOString(),
+        updatedBy: body.updatedBy ? String(body.updatedBy).slice(0, 80) : ""
+      };
+      localStorage.setItem(DATA_KEY, JSON.stringify(payload));
+      return payload;
+    }
+    function sortItems() {
+      items.sort((a,b) => (a.fecha + a.festividad).localeCompare(b.fecha + b.festividad));
+    }
+    function calendarUrl(item) {
+      const start = item.fecha.split("-").join("");
+      const endDate = new Date(item.fecha + "T12:00:00");
+      endDate.setDate(endDate.getDate() + 1);
+      const end = endDate.toISOString().slice(0,10).split("-").join("");
+      const title = encodeURIComponent(item.compromiso || item.festividad);
+      const details = encodeURIComponent([item.compromiso, item.quien && ("Quién: " + item.quien), item.notas].filter(Boolean).join("\n"));
+      return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}&ctz=America/Mexico_City`;
+    }
+    function render() {
+      sortItems();
+      const root = $("list");
+      root.innerHTML = "";
+      let lastMonth = "";
+      for (const item of items) {
+        const mk = monthKey(item.fecha);
+        if (mk !== lastMonth) {
+          lastMonth = mk;
+          const h = document.createElement("h2");
+          h.className = "month";
+          h.textContent = mk;
+          root.appendChild(h);
+        }
+        root.appendChild(cardEl(item));
+      }
+    }
+    function bind(el, item, field, isTextarea) {
+      el.value = item[field] || "";
+      const ev = isTextarea ? "input" : "input";
+      el.addEventListener(ev, () => {
+        item[field] = el.value;
+        scheduleSave();
+      });
+    }
+    function cardEl(item) {
+      const card = document.createElement("article");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="card-top">
+          <div>
+            <div class="date">${fmtDate(item.fecha)}</div>
+            <div class="title"></div>
+            <span class="chip">${item.tipo || "Compromiso"}</span>
+          </div>
+        </div>
+        <div class="grid" style="margin-top:14px">
+          <div>
+            <label>Compromiso</label>
+            <input data-field="compromiso" />
+          </div>
+          <div>
+            <label>Quién</label>
+            <input data-field="quien" />
+          </div>
+        </div>
+        <div class="grid" style="margin-top:12px">
+          <div>
+            <label>Recordatorio (fecha y hora)</label>
+            <input type="datetime-local" data-field="recordatorio" />
+          </div>
+          <div>
+            <label>Estado</label>
+            <select data-field="estado">
+              <option>Pendiente</option>
+              <option>En proceso</option>
+              <option>Listo</option>
+              <option>Cancelado</option>
+            </select>
+          </div>
+        </div>
+        <div class="notes">
+          <h3>Notas</h3>
+          <textarea data-field="notas" placeholder="Detalles del compromiso: lugar, qué llevar, horarios, acuerdos…"></textarea>
+        </div>
+        <div class="row-actions"></div>
+      `;
+      card.querySelector(".title").textContent = item.festividad;
+      for (const field of ["compromiso","quien","recordatorio","notas","estado"]) {
+        bind(card.querySelector(`[data-field="${field}"]`), item, field, field === "notas");
+      }
+      const actions = card.querySelector(".row-actions");
+      const cal = document.createElement("a");
+      cal.className = "btn secondary";
+      cal.href = calendarUrl(item);
+      cal.target = "_blank";
+      cal.rel = "noopener";
+      cal.textContent = "Agregar a Google Calendar";
+      cal.addEventListener("click", () => { cal.href = calendarUrl(item); });
+      actions.appendChild(cal);
+      if (!item.fijo) {
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "ghost";
+        del.textContent = "Quitar";
+        del.addEventListener("click", () => {
+          if (confirm("¿Quitar este compromiso?")) {
+            items = items.filter((x) => x.id !== item.id);
+            render();
+            scheduleSave(0);
+          }
+        });
+        actions.appendChild(del);
+      }
+      return card;
+    }
+    function scheduleSave(ms = 700) {
+      dirty = true;
+      setStatus("Guardando…");
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveNow, ms);
+    }
+    async function saveNow() {
+      try {
+        skipNextPoll = true;
+        const data = await api("PUT", { items, updatedBy: who() });
+        items = data.items;
+        updatedAt = data.updatedAt;
+        dirty = false;
+        const when = data.updatedAt ? new Date(data.updatedAt).toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) : "";
+        setStatus("Guardado" + (when ? " · " + when + " (hora del centro de México)" : ""), "ok");
+      } catch (err) {
+        dirty = true;
+        setStatus(err.message === "unauthorized" ? "La clave ya no es válida. Vuelve a entrar." : "No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.", "err");
+      }
+    }
+    async function load() {
+      const data = await api("GET");
+      items = data.items || [];
+      updatedAt = data.updatedAt;
+      render();
+      const extra = data.updatedBy ? " por " + data.updatedBy : "";
+      const when = data.updatedAt ? new Date(data.updatedAt).toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) : "";
+      setStatus(when ? ("Al día" + extra + " · " + when + " (hora del centro de México)") : "Listo para editar. Los cambios se guardan solos.", "ok");
+    }
+    async function poll() {
+      if (dirty || document.hidden || skipNextPoll) {
+        skipNextPoll = false;
+        return;
+      }
+      try {
+        const data = await api("GET");
+        if (data.updatedAt && data.updatedAt !== updatedAt) {
+          items = data.items || [];
+          updatedAt = data.updatedAt;
+          render();
+          const extra = data.updatedBy ? " por " + data.updatedBy : "";
+          setStatus("Se actualizó" + extra + ". Ya estás viendo la versión más reciente.", "ok");
+        }
+      } catch (_) { /* silenciar errores de red al consultar */ }
+    }
+    function enterApp() {
+      $("lock").classList.add("hidden");
+      $("app").classList.remove("hidden");
+      $("who").value = localStorage.getItem(WHO_KEY) || "";
+      $("who").addEventListener("input", () => localStorage.setItem(WHO_KEY, $("who").value));
+      load().catch((err) => {
+        if (err.message === "unauthorized") {
+          sessionStorage.removeItem(ACCESS_KEY);
+          location.reload();
+        } else {
+          setStatus("No se pudo cargar la página. Recarga e inténtalo de nuevo.", "err");
+        }
+      });
+      setInterval(poll, 5000);
+    }
+    $("lock-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      sessionStorage.setItem(ACCESS_KEY, $("code").value.trim());
+      $("lock-error").textContent = "";
+      try {
+        await api("GET");
+        enterApp();
+      } catch (err) {
+        sessionStorage.removeItem(ACCESS_KEY);
+        $("lock-error").textContent = err.message === "unauthorized" ? "Clave incorrecta." : "No se pudo entrar. Inténtalo de nuevo.";
+      }
+    });
+    $("toggle-composer").addEventListener("click", () => $("composer").classList.add("open"));
+    $("cancel-composer").addEventListener("click", () => $("composer").classList.remove("open"));
+    $("composer").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const festividad = $("new-title").value.trim();
+      const fecha = $("new-fecha").value;
+      if (!festividad || !fecha) return;
+      items.push({
+        id: "c-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+        fecha,
+        festividad,
+        tipo: $("new-tipo").value,
+        fijo: false,
+        compromiso: festividad,
+        quien: $("new-quien").value.trim(),
+        notas: $("new-notas").value,
+        recordatorio: $("new-recordatorio").value,
+        estado: "Pendiente"
+      });
+      $("composer").reset();
+      $("composer").classList.remove("open");
+      render();
+      scheduleSave(0);
+    });
+    if (sessionStorage.getItem(ACCESS_KEY)) {
+      api("GET").then(enterApp).catch(() => sessionStorage.removeItem(ACCESS_KEY));
+    }
+  </script>
+</body>
+</html>
